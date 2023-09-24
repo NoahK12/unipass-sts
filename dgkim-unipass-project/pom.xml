@@ -15,7 +15,7 @@
 	<name>dgkim-unipass-project</name>
 	<description>DGKIM unipass API Call project</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
