@@ -1,0 +1,22 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: dgkim-unipass-project
+
+  profiles:
+    active: test
+    group:
+      test : 
+        - unipass-test
+      dev :
+        - unipass-dev
+      prod :
+        - unipass-prod
+    include:
+      - unipass
+      - unipass-service
+
+greeting:
+  message: this is main application.yml
