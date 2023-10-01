@@ -39,13 +39,10 @@
             <version>1.18.24</version>
             <scope>provided</scope>
         </dependency>
-<<<<<<< HEAD
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
-=======
->>>>>>> branch 'main' of https://github.com/NoahK12/unipass-sts.git
 	</dependencies>
 
 	<build>
