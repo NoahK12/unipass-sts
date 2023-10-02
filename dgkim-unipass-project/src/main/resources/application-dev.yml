@@ -1,2 +1,8 @@
 greeting:
   message: this is main application.yml
+
+unipass_url : https://tunipass.customs.go.kr:38010/
+
+retrieve_iopr_rprt_brkd:
+  license_key: y240n213g170k002v040c090a0
+  service_url: ext/rest/ioprRprtQry/retrieveIoprRprtBrkd
