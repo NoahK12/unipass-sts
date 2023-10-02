@@ -23,7 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @filename    : UnipassController
- * @description : Unipass Restfull API call Controller
+ * @description : Unipass Restful API call Controller
  * @author      : dgkim
  * @since       : 2023-09-29
  * @modify      :
@@ -36,7 +36,7 @@ public class UnipassController {
     
     /**
      * 2023. 09. 29. : dgkim
-     * Unipass Restfull API를 호출하기위한 callSerivce
+     * Unipass Restful API를 호출하기위한 callSerivce
      * @return
      * @throws Exception
      */

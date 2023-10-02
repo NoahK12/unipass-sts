@@ -4,7 +4,7 @@ import java.util.Map;
 
 /**
  * @filename    : DataProcess
- * @description : Unipass Restfull API 호출 Interface
+ * @description : Unipass Restful API 호출 Interface
  * @author      : dgkim
  * @since       : 2023-09-29
  * @modify      :
