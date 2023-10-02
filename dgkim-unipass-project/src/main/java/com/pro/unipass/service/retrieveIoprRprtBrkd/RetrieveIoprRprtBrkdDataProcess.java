@@ -1,29 +1,24 @@
 package com.pro.unipass.service.retrieveIoprRprtBrkd;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.util.Strings;
+import org.json.JSONObject;
+import org.json.XML;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriBuilder;
 
 import com.pro.unipass.common.Const;
 import com.pro.unipass.service.DataProcess;
 import com.pro.unipass.service.retrieveIoprRprtBrkd.param.RETRIEVELOPR_RPRT_BRKD_INPUT;
-import com.pro.unipass.service.retrieveIoprRprtBrkd.param.RETRIEVELOPR_RPRT_BRKD_OUTPUT;
 
 import reactor.core.publisher.Mono;
 
@@ -51,6 +46,7 @@ public class RetrieveIoprRprtBrkdDataProcess implements DataProcess{
     
 	@Override
 	public Object parameterConverter(Map<String, Object> param){
+		// input 데이터 가공
 		RETRIEVELOPR_RPRT_BRKD_INPUT input = new RETRIEVELOPR_RPRT_BRKD_INPUT();
 		input.setCstmSgn(Strings.isNotEmpty((String)param.get("cstmSgn")) ? (String) param.get("cstmSgn") : "");
 		input.setShipCallImoNo(Strings.isNotEmpty((String)param.get("shipCallImoNo")) ? (String) param.get("shipCallImoNo") : "");
@@ -62,6 +58,7 @@ public class RetrieveIoprRprtBrkdDataProcess implements DataProcess{
 
 	@Override
 	public Map<String, Object> resultDataProcess(Object param) {
+		Map<String, Object> resultMap  = new HashMap<String, Object>();
 		Map<String, Object> paramMap = (Map<String, Object>)param;
 		RETRIEVELOPR_RPRT_BRKD_INPUT input = (RETRIEVELOPR_RPRT_BRKD_INPUT) paramMap.get("input");
 		
@@ -71,75 +68,110 @@ public class RetrieveIoprRprtBrkdDataProcess implements DataProcess{
 		String logInput = String.format("==> resultDataProcess : input : %s", input.toString());
 		logger.info(logInput);
 		
-		String logUnipassUrl = String.format("==> resultDataProcess : unipassUrl : %s", unipassUrl.toString());
-		logger.info(logUnipassUrl);
+		// unipass URL 설정
+		String url = unipassUrl + serviceUrl;
 		
-		String logServiceUrl = String.format("==> resultDataProcess : serviceUrl : %s", serviceUrl.toString());
-		logger.info(logServiceUrl);
-		
-		String logLicenseKey = String.format("==> resultDataProcess : licenseKey : %s", licenseKey.toString());
-		logger.info(logLicenseKey);
-		
-		
-		Map<String, Object> resultMap  = new HashMap<String, Object>();
-		
-		String fullUrl = unipassUrl + serviceUrl;
-		
-		// URI 인코딩 설정
-//		DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(fullUrl);
-//		factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.VALUES_ONLY);
-//		
-//		WebClient client = WebClient.builder()
-//				.uriBuilderFactory(factory)
-//	 			.baseUrl(fullUrl)
-//				.build();
-//		
-//		Mono<RETRIEVELOPR_RPRT_BRKD_OUTPUT> response = client.get().uri(uriBuilder -> uriBuilder
-//					.queryParam("crkyCn", licenseKey)
-//					.queryParam("seaFlghIoprTpcd", input.getSeaFlghIoprTpcd())
-//					.queryParam("shipCallImoNo", input.getShipCallImoNo())
-////					.queryParam("cstmSgn", input.get("cstmSgn"))
-//					.build())
-//				.retrieve()
-//				.bodyToMono(RETRIEVELOPR_RPRT_BRKD_OUTPUT.class);
-		
-		RestTemplate restTemplate = new RestTemplate();
-		HttpHeaders headers = new HttpHeaders();
-		MediaType mediaType = new MediaType("application", "xml", Charset.forName("UTF-8"));
-		headers.setContentType(mediaType);
-		HttpEntity<String> entity = new HttpEntity<>(headers);
-		
-		fullUrl += "?crkyCn=";
-		fullUrl += licenseKey;
+		// unipass URI 설정
+		StringBuffer fullUriBuffer = new StringBuffer();
+		fullUriBuffer.append(url)
+			.append("?crkyCn=")
+			.append(licenseKey);
 		
 		if(Strings.isNotEmpty(input.getSeaFlghIoprTpcd())) {
-			fullUrl += "&seaFlghIoprTpcd=";
-			fullUrl += input.getSeaFlghIoprTpcd();
+			fullUriBuffer.append("&seaFlghIoprTpcd=")
+				.append(input.getSeaFlghIoprTpcd());
 		}
 		if(Strings.isNotEmpty(input.getShipCallImoNo())) {
-			fullUrl += "&shipCallImoNo=";
-			fullUrl += input.getShipCallImoNo();
+			fullUriBuffer.append("&shipCallImoNo=")
+				.append(input.getShipCallImoNo());
 		}
 		if(Strings.isNotEmpty(input.getCstmSgn())) {
-			fullUrl += "&cstmSgn=";
-			fullUrl += input.getCstmSgn();
+			fullUriBuffer.append("&cstmSgn=")
+				.append(input.getCstmSgn());
 		}
-
-		String logFullUrl = String.format("==> resultDataProcess : fullUrl : %s", fullUrl.toString());
-		logger.info(logFullUrl);
+		String fullUri = fullUriBuffer.toString();
 		
-		RETRIEVELOPR_RPRT_BRKD_OUTPUT response = restTemplate.getForObject(fullUrl, RETRIEVELOPR_RPRT_BRKD_OUTPUT.class);
-//		RETRIEVELOPR_RPRT_BRKD_OUTPUT response = restTemplate.postForObject(fullUrl, entity, RETRIEVELOPR_RPRT_BRKD_OUTPUT.class);
-		   
-//		response.subscribe();
+		String logfullUri = String.format("==> resultDataProcess : fullUri : %s", fullUri.toString());
+		logger.info(logfullUri);
+		
+		// URI 인코딩 설정
+		DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(url);
+		factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.VALUES_ONLY);
+		
+		// WebClinet builder 설정
+		WebClient client = WebClient.builder()
+				.uriBuilderFactory(factory)
+	 			.baseUrl(url)
+				.build();
+		
+		Mono<String> response = client.get()
+				.uri(fullUri)
+				.retrieve()
+				.bodyToMono(String.class);
+		
+		response.doOnSuccess(result -> {
+			// 응답받은 xml 데이터를 json object로 파싱
+			JSONObject jsonObject = XML.toJSONObject(result.toString());
+			
+			// 응답 결과가 없을 시 사전에 정해진 응답데이터 형태가 아니기 때문에 Error 상태로 Result Data 세팅
+			if(jsonObject.isNull("ioprRprtBrkdQryRtnVo")) {
+				resultMap.put(Const.RESULT_STATUS , Const.ERROR);
+				resultMap.put(Const.RESULT_MESSAGE, "응답 결과가 없습니다.");
+			} else {
+				// 전체 응답 데이터 추출
+				Map<String, Object> ioprRprtBrkdQryRtnVo = jsonObject.getJSONObject("ioprRprtBrkdQryRtnVo").toMap();
+				
+				// 입출항 데이터 갯수
+				int tCnt = (int) ioprRprtBrkdQryRtnVo.get("tCnt");
+				
+				// 조회된 입출항 데이터가 없을 경우 
+				if(tCnt < 1) {
+					resultMap.put(Const.RESULT_STATUS , Const.SUCCESS);
+					resultMap.put(Const.RESULT_MESSAGE, ioprRprtBrkdQryRtnVo.get("ntceInfo"));
+					resultMap.put(Const.RESULT_DATA   , ioprRprtBrkdQryRtnVo);
+				} else {
+					// 전체 입출항 데이터
+					List<Map<String, Object>> etprRprtQryBrkdQryVo = (List<Map<String, Object>>) ioprRprtBrkdQryRtnVo.get("etprRprtQryBrkdQryVo");
+					
+					// 입항일(etprDttm) 기준으로 정렬
+					if(etprRprtQryBrkdQryVo.get(0).containsKey("etprDttm")) {
+						etprRprtQryBrkdQryVo.sort(Comparator.comparing((Map<String, Object> map) -> (Long)map.get("etprDttm")).reversed());
+						
+					// 출항일(tkofDttm) 기준으로 정렬
+					} else {
+						etprRprtQryBrkdQryVo.sort(Comparator.comparing((Map<String, Object> map) -> (Long)map.get("tkofDttm")).reversed());
+					}
+					
+					// 가장 최근에 입출항한 목록
+					List<Map<String, Object>> latestList = new ArrayList<Map<String, Object>>();
+					latestList.addAll(etprRprtQryBrkdQryVo);
+					
+					// 입출항 목록이 10건 이상일 경우 10건만 추출
+					if(tCnt > 10) {
+						latestList = etprRprtQryBrkdQryVo.subList(0, 9);
+						ioprRprtBrkdQryRtnVo.put("tCnt", 10);
+					}
+					
+					// 가공한 입출항 데이터 세팅
+					ioprRprtBrkdQryRtnVo.put("etprRprtQryBrkdQryVo", latestList);
+					
+					resultMap.put(Const.RESULT_STATUS , Const.SUCCESS);
+					resultMap.put(Const.RESULT_MESSAGE, "SUCCESS");
+					resultMap.put(Const.RESULT_DATA   , ioprRprtBrkdQryRtnVo);
+				}
+			}
+		})
+		// 에러 발생시 exception 처리
+		.doOnError(error -> {
+			String logError = String.format("==> resultDataProcess : error : %s", error.toString());
+			logger.info(logError);
+			throw new RuntimeException(error);
+		})
+		.log()
+		.block(); // API의 응답결과를 출력해야하기 때문에 blocking 방식으로 호출
 		
 		String logResponse = String.format("==> resultDataProcess : response : %s", response.toString());
 		logger.info(logResponse);
-		
-		// 성공 응답 결과 테스트
-		resultMap.put(Const.RESULT_STATUS , Const.SUCCESS);
-		resultMap.put(Const.RESULT_MESSAGE, "SUCCESS");
-		resultMap.put(Const.RESULT_DATA   , new HashMap<String, Object>());
 		
 		return resultMap;
 	}
